@@ -17,8 +17,9 @@ public class BankDataController {
     }
 
     public UUID addAccounts(Account a) {
-        accounts.put(a.getUuid(), a);
-        return a.getUuid();
+        UUID id = a.getUuid();
+        accounts.put(id, a);
+        return id;
     }
 
     public Set<UUID> getAllTransactionFrom(UUID id) {
@@ -31,8 +32,12 @@ public class BankDataController {
         return t;
     }
 
-    public Account getAccount(UUID id) {
-        return accounts.get(id);
+    public Account getAccount(UUID id) throws NotAccountFoundException{
+        Account found = accounts.get(id);
+        if (found == null) {
+            throw new NotAccountFoundException();
+        }
+        return found;
     }
 
     public Map<String, Object> getAccountInfo(UUID id){
@@ -52,17 +57,33 @@ public class BankDataController {
         return accounts.remove(id);
     }
 
-    public Transaction withdraw(UUID id, double amount) {
-        Account a = accounts.get(id);
-        Transaction t = Transaction.withdrawTransaction(a, amount);
+    public void setNameAndSurname(UUID id, String name, String surname) throws NotAccountFoundException{
+        Account found = getAccount(id);
+        found.setName(name);
+        found.setSurname(surname);
+    }
+
+    public void setNameOrSurname(UUID id, String name, String surname) throws NotAccountFoundException{
+        Account found = getAccount(id);
+        if (name == null) {
+            found.setSurname(surname);
+        } else {
+            found.setName(name);
+        }
+    }
+
+    public Transaction withdraw(UUID id, double amount) throws NotAccountFoundException {
+        Account a = getAccount(id);
+        Transaction t = Transaction.withdrawTransaction(a, Math.abs(amount));
         if (t == null) {
             return null;
         }
-        return transactions.put(UUID.randomUUID(), t);
+        transactions.put(t.getUuid(), t);
+        return t;
     }
     
-    public Transaction deposit(UUID id, double amount) {
-        Account a = accounts.get(id);
+    public Transaction deposit(UUID id, double amount) throws NotAccountFoundException {
+        Account a = getAccount(id);
         Transaction t = Transaction.depositTransaction(a, amount);
         transactions.put(t.getUuid(), t);
         return t;

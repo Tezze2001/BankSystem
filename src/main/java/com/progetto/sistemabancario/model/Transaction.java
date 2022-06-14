@@ -14,6 +14,7 @@ public class Transaction implements Comparable<Transaction>{
         time = LocalDateTime.now();
         this.sender = sender;
         this.receiver = receiver;
+        this.amount = amount;
     }
     
     public static Transaction transaction(Account sender, Account receiver, double amount) {
@@ -31,7 +32,7 @@ public class Transaction implements Comparable<Transaction>{
         } catch (NotEnoughtBalance e) {
             return null;
         }
-        return Transaction.depositTransaction(account, amount);
+        return new Transaction(account, account, amount);
     }
 
     public Account getSender() {
