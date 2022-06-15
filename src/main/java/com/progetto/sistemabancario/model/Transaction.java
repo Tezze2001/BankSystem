@@ -1,5 +1,6 @@
 package com.progetto.sistemabancario.model;
 
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -10,28 +11,36 @@ public class Transaction implements Comparable<Transaction>{
     private Account receiver;
     private double amount;
 
-    private Transaction(Account sender, Account receiver, double amount) {
+    private Transaction(Account sender, Account receiver, double amount)
+                                throws InvalidParameterTransactionException {
         time = LocalDateTime.now();
+        if (sender == null || receiver == null || amount <= 0) {
+            throw new InvalidParameterTransactionException();
+        }
         this.sender = sender;
         this.receiver = receiver;
         this.amount = amount;
     }
     
-    public static Transaction transaction(Account sender, Account receiver, double amount) {
+    public static Transaction transaction(Account sender, Account receiver, double amount) 
+                                throws InvalidParameterTransactionException,
+                                        NotEnoughtBalance {
+        sender.withdraw(amount);
+        receiver.deposit(amount);
         return new Transaction(sender, receiver, amount);
     }
 
-    public static Transaction depositTransaction( Account account, double amount) {
+    public static Transaction depositTransaction( Account account, double amount) 
+                                        throws InvalidParameterTransactionException,
+                                                NotEnoughtBalance {
         account.deposit(amount);
         return new Transaction(account, account, amount);
     }
 
-    public static Transaction withdrawTransaction(Account account, double amount) {
-        try {
-            account.withdraw(amount);
-        } catch (NotEnoughtBalance e) {
-            return null;
-        }
+    public static Transaction withdrawTransaction(Account account, double amount) 
+                                        throws InvalidParameterTransactionException ,
+                                                NotEnoughtBalance {
+        account.withdraw(amount);
         return new Transaction(account, account, amount);
     }
 

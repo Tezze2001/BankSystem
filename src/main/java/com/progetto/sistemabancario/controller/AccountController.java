@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException.NotFound;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -184,5 +183,4 @@ public class AccountController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }

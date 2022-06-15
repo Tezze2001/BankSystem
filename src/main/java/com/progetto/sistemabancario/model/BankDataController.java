@@ -88,4 +88,12 @@ public class BankDataController {
         transactions.put(t.getUuid(), t);
         return t;
     }
+
+    public Transaction transfer(UUID idSender, UUID idReceiver, double amount) throws NotAccountFoundException {
+        Account sender = getAccount(idSender);
+        Account receiver = getAccount(idSender);
+        Transaction t = Transaction.transaction(sender, receiver, amount);
+        transactions.put(t.getUuid(), t);
+        return t;
+    }
 }
