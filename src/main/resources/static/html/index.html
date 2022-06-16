@@ -25,6 +25,58 @@
             <div class="col-1">
             </div>
         </div>
+        <div class="row align-items-start">
+            <div class="col-1">
+            </div>
+            <div class="col-10">
+                <h2>
+                    Account id
+                </h2>
+                <p id="Account-id">
+
+                </p>
+            </div>
+            <div class="col-1">
+            </div>
+        </div>
+        <div class="row align-items-start">
+            <div class="col-4">
+                <h2>
+                    Name
+                </h2>
+                <p id="Account-name">
+                </p>
+            </div>
+            <div class="col-4">
+                <h2>
+                    Surname
+                </h2>
+                <p id="Account-surname">
+
+                </p>
+            </div>
+            <div class="col-4">
+                <h2>
+                    Balance
+                </h2>
+                <p id="Account-balance">
+
+                </p>
+            </div>
+        </div>
+        <table id="table-container" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Id Transaction</th>
+                    <th scope="col">Receiver</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Time</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+        
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <!--<script src="/js/utility.js"></script>
@@ -51,7 +103,40 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log(data);
+                    document.getElementById('Account-id').innerText = id.value
+                    document.getElementById('Account-name').innerText = data.name
+                    document.getElementById('Account-surname').innerText = data.surname
+                    document.getElementById('Account-balance').innerText = data.balance + '€'
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+                fetch('/api/account/transaction/' + id.value, {
+                    method : "GET",
+                    mode: 'cors',
+                    headers: {}
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error(response.error)
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data)
+                    const tbBody = document.getElementById('table-body')
+                    data.forEach(element => {
+                        let a = 'none'
+                        if (id.value != element.receiver.uuid) {
+                            a = element.receiver.uuid
+                        }
+                        tbBody.innerHTML += '<tr><td>' + element.uuid + '</td><td>' + a + '</td><td>' + element.amount +'€</td><td>' + element.time +'</td></tr>'
+                        /*tbBody.innerHTML += '<td>' + (id.value != element.receiver.uuid) ? element.receiver.uuid : 'none' + '</td>'
+                        tbBody.innerHTML += '<td>' + element.amount +'€</td>'
+                        tbBody.innerHTML += '<td>' + element.time +'</td></tr>'*/
+                        document.querySelector('#table-body:first').classList.add('bold')
+                    });
                 })
                 .catch(function(error) {
                     console.log(error);

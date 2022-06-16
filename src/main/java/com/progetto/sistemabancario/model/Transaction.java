@@ -67,6 +67,10 @@ public class Transaction implements Comparable<Transaction>{
     public LocalDateTime getTime() {
         return time;
     }
+
+    public double getAmount() {
+        return amount;
+    }
     
     public Transaction divert() throws InvalidParameterTransactionException, 
                                             NotEnoughtBalance {

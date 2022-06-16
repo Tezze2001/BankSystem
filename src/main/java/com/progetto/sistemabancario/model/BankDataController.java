@@ -32,6 +32,15 @@ public class BankDataController {
         return t;
     }
 
+    public Set<Transaction> getAllTransactionFromInfo(UUID id) {
+        Set<UUID> idTransactions = getAllTransactionFrom(id);
+        Set<Transaction> t = new TreeSet<>();
+        for (UUID uuid : idTransactions) {
+            t.add(transactions.get(uuid));
+        }
+        return t;
+    }
+
     public Account getAccount(UUID id) throws NotAccountFoundException{
         Account found = accounts.get(id);
         if (found == null) {

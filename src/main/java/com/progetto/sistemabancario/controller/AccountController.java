@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -82,6 +83,19 @@ public class AccountController {
         headers.add("X-Sistema-Bancario", 
             search.getName() + ";" + search.getSurname());
         return new ResponseEntity<Map<String, Object>>(body, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/transaction/{accountId}")
+    public ResponseEntity<Set<Transaction>> getAccountTransaction(@PathVariable("accountId") String id) {
+        Set<Transaction> body = null;
+        try {
+            body = SistemabancarioApplication
+                    .data
+                    .getAllTransactionFromInfo(UUID.fromString(id));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Set<Transaction>>(body, HttpStatus.OK);
     }
 
     @PostMapping("/{accountId}")
