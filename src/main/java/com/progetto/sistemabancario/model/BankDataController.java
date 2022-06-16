@@ -100,9 +100,19 @@ public class BankDataController {
                                                 NotEnoughtBalance,
                                                 InvalidParameterTransactionException {
         Account sender = getAccount(idSender);
-        Account receiver = getAccount(idSender);
+        Account receiver = getAccount(idReceiver);
         Transaction t = Transaction.transaction(sender, receiver, amount);
         transactions.put(t.getUuid(), t);
         return t;
     }
+
+    public Transaction divert(UUID idTransaction) 
+                                throws NotAccountFoundException,
+                                    NotEnoughtBalance,
+                                    InvalidParameterTransactionException {
+        Transaction t = transactions.get(idTransaction).divert();
+        transactions.put(t.getUuid(), t);
+        return t;
+    }
+
 }

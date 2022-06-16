@@ -1,6 +1,5 @@
 package com.progetto.sistemabancario.model;
 
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,6 +24,9 @@ public class Transaction implements Comparable<Transaction>{
     public static Transaction transaction(Account sender, Account receiver, double amount) 
                                 throws InvalidParameterTransactionException,
                                         NotEnoughtBalance {
+        if (sender == null || receiver == null || amount <= 0) {
+            throw new InvalidParameterTransactionException();
+        }
         sender.withdraw(amount);
         receiver.deposit(amount);
         return new Transaction(sender, receiver, amount);
@@ -33,6 +35,9 @@ public class Transaction implements Comparable<Transaction>{
     public static Transaction depositTransaction( Account account, double amount) 
                                         throws InvalidParameterTransactionException,
                                                 NotEnoughtBalance {
+        if (account == null || amount <= 0) {
+            throw new InvalidParameterTransactionException();
+        }
         account.deposit(amount);
         return new Transaction(account, account, amount);
     }
@@ -40,6 +45,9 @@ public class Transaction implements Comparable<Transaction>{
     public static Transaction withdrawTransaction(Account account, double amount) 
                                         throws InvalidParameterTransactionException ,
                                                 NotEnoughtBalance {
+        if (account == null || amount <= 0) {
+            throw new InvalidParameterTransactionException();
+        }
         account.withdraw(amount);
         return new Transaction(account, account, amount);
     }
@@ -60,6 +68,11 @@ public class Transaction implements Comparable<Transaction>{
         return time;
     }
     
+    public Transaction divert() throws InvalidParameterTransactionException, 
+                                            NotEnoughtBalance {
+        return Transaction.transaction(receiver, sender, amount);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

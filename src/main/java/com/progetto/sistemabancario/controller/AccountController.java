@@ -21,7 +21,6 @@ import java.util.UUID;
 import com.progetto.sistemabancario.SistemabancarioApplication;
 import com.progetto.sistemabancario.model.Account;
 import com.progetto.sistemabancario.model.NotAccountFoundException;
-import com.progetto.sistemabancario.model.NotEnoughtBalance;
 import com.progetto.sistemabancario.model.Transaction;
 
 @RestController

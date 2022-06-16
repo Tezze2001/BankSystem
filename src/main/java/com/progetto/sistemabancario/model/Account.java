@@ -62,12 +62,10 @@ public class Account implements Comparable<Account>{
             throw new NotEnoughtBalance();
         }
         setBalance(getBalance() - amount);
-        System.out.println(this.balance);
     }
 
     public void deposit(double amount) {
         setBalance(getBalance() + amount);
-        System.out.println(this.balance);
     }
 
     @Override
