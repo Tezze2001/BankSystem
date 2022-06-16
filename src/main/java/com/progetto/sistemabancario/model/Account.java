@@ -42,7 +42,11 @@ public class Account implements Comparable<Account>{
     }
 
     public double getBalance() {
-        return balance;
+        return this.balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 
     public UUID getUuid() {
@@ -57,11 +61,13 @@ public class Account implements Comparable<Account>{
         if (!disponibility(amount)) {
             throw new NotEnoughtBalance();
         }
-        this.balance -= amount;
+        setBalance(getBalance() - amount);
+        System.out.println(this.balance);
     }
 
     public void deposit(double amount) {
-        this.balance += amount;
+        setBalance(getBalance() + amount);
+        System.out.println(this.balance);
     }
 
     @Override

@@ -48,6 +48,10 @@ public class Transaction implements Comparable<Transaction>{
         return sender;
     }
 
+    public Account getReceiver() {
+        return receiver;
+    }
+
     public UUID getUuid() {
         return uuid;
     }

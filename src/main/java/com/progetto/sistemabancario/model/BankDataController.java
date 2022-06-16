@@ -72,7 +72,10 @@ public class BankDataController {
         }
     }
 
-    public Transaction withdraw(UUID id, double amount) throws NotAccountFoundException {
+    public Transaction withdraw(UUID id, double amount) 
+                                throws NotAccountFoundException, 
+                                    InvalidParameterTransactionException,
+                                    NotEnoughtBalance{
         Account a = getAccount(id);
         Transaction t = Transaction.withdrawTransaction(a, Math.abs(amount));
         if (t == null) {
@@ -82,14 +85,20 @@ public class BankDataController {
         return t;
     }
     
-    public Transaction deposit(UUID id, double amount) throws NotAccountFoundException {
+    public Transaction deposit(UUID id, double amount) 
+                                throws NotAccountFoundException,
+                                InvalidParameterTransactionException,
+                                NotEnoughtBalance{
         Account a = getAccount(id);
         Transaction t = Transaction.depositTransaction(a, amount);
         transactions.put(t.getUuid(), t);
         return t;
     }
 
-    public Transaction transfer(UUID idSender, UUID idReceiver, double amount) throws NotAccountFoundException {
+    public Transaction transfer(UUID idSender, UUID idReceiver, double amount) 
+                                            throws NotAccountFoundException,
+                                                NotEnoughtBalance,
+                                                InvalidParameterTransactionException {
         Account sender = getAccount(idSender);
         Account receiver = getAccount(idSender);
         Transaction t = Transaction.transaction(sender, receiver, amount);

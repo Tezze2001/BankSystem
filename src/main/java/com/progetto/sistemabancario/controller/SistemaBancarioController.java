@@ -1,19 +1,17 @@
 package com.progetto.sistemabancario.controller;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.progetto.sistemabancario.SistemabancarioApplication;
-import com.progetto.sistemabancario.model.Account;
-import com.progetto.sistemabancario.model.NotAccountFoundException;
 import com.progetto.sistemabancario.model.Transaction;
 
 @RestController
@@ -43,16 +41,21 @@ public class SistemaBancarioController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } 
+        Transaction res = null;
         try {
-            SistemabancarioApplication.data.transfer(idAccountSender, idAccountReceiver, amount);
-
-        } catch (NotAccountFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            res = SistemabancarioApplication.data.transfer(idAccountSender, idAccountReceiver, amount);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Transaction res = Transaction.transaction(sender, receiver, amount);
         Map<String, Object> body = new TreeMap<>();
-        body.put("idTransaction", res.getUuid());
-        body.put("balance", res.getSender().getBalance());
+        Map<String, String> balanceSender = new TreeMap<>();
+        balanceSender.put("id", res.getSender().getUuid().toString());
+        balanceSender.put("balance", String.valueOf(res.getSender().getBalance()));
+        Map<String, String> balanceReceiver = new TreeMap<>();
+        balanceReceiver.put("id", res.getReceiver().getUuid().toString());
+        balanceReceiver.put("balance", String.valueOf(res.getReceiver().getBalance()));
+        body.put("sender", balanceSender);
+        body.put("receiver", balanceReceiver);
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
     
