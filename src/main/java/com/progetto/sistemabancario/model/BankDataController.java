@@ -49,8 +49,12 @@ public class BankDataController {
         return found;
     }
 
-    public Map<String, Object> getAccountInfo(UUID id){
+    public Map<String, Object> getAccountInfo(UUID id) throws NotAccountFoundException {
         Map<String, Object> fields = new TreeMap<>();
+        Account a = accounts.get(id);
+        if (a == null) {
+            throw new NotAccountFoundException();
+        }
         fields.put("name", accounts.get(id).getName());
         fields.put("surname", accounts.get(id).getSurname());
         fields.put("balance", accounts.get(id).getBalance());

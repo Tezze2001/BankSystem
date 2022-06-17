@@ -68,7 +68,7 @@ public class AccountController {
             body = SistemabancarioApplication
                     .data
                     .getAccountInfo(UUID.fromString(id));
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         HttpHeaders headers = new HttpHeaders();

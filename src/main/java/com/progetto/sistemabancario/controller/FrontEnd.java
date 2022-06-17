@@ -14,4 +14,11 @@ public class FrontEnd {
         modelAndView.setViewName("/html/index.html");
         return modelAndView;
     }
+    
+    @GetMapping("/transfer")
+    public ModelAndView getTransfer() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("/html/transfer.html");
+        return modelAndView;
+    }
 }

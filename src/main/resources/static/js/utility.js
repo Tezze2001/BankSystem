@@ -1,32 +1,15 @@
-var fetch = (method, url, async, handler, body) => {
-    var xReq = new XMLHttpRequest()
-    xReq.onreadystatechange = handler
-    xReq.open(method, url, async)
-    xReq.send(body)
+const checkId = (id) => {
+    let regex = new RegExp('^([0-9a-f]){8}(-([0-9a-f]){4}){3}-([0-9a-f]){12}$')
+    return regex.test(id)
 }
 
-var head = (url, handler) => {
-    fetch('head', url, true, handler, undefined);
+const checkAmount = (amount) => {
+    let regex = new RegExp('^([1-9][0-9]*\.[0-9]+)|([0-9]+)$')
+    return regex.test(amount)
 }
 
-export var get = (url, handler) => {
-    fetch('get', url, true, handler, undefined);
-}
-
-var post = (url, handler, body) => {
-    fetch('post', url, true, handler, body);
-}
-
-var put = (url, handler, body) => {
-    fetch('put', url, true, handler, body);
-}
-
-var path = (url, handler, body) => {
-    fetch('post', url, true, handler, body);
-}
-
-var del = (url, handler, body) => {
-    fetch('delete', url, true, handler, body);
-}
-
-//export { head, get, post, put, path, del }
+const errorDispalyMsg = (msg, idHtmlElement) => {
+    const error = document.getElementById(idHtmlElement)
+    error.innerHTML = msg
+    error.style.display = 'block'
+} 
