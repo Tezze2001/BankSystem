@@ -64,11 +64,12 @@ window.onload = () => {
         .then(data => {
             console.log(data)
             data.forEach(element => {
-                let a = 'none'
+                let a =  ''
                 if (id.value != element.receiver.uuid) {
                     a = element.receiver.uuid
                 }
-                tbBody.innerHTML += '<tr><td>' + element.uuid + '</td><td>' + a + '</td><td>' + element.amount +'€</td><td>' + element.time +'</td></tr>'
+                document.querySelector('tbody#table-body').innerHTML 
+                        += '<tr><td>' + element.uuid + '</td><td>' + a + '</td><td>' + element.amount +'€</td><td>' + element.time +'</td></tr>'
             });
             const first = document.querySelector('tbody#table-body>tr:first-child')
             if (first != undefined) {

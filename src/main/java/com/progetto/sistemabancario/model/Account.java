@@ -1,8 +1,9 @@
 package com.progetto.sistemabancario.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class Account implements Comparable<Account>{
+public class Account implements Comparable<Account>, Serializable {
     private final UUID uuid = UUID.randomUUID();
     private String name;
     private String surname;

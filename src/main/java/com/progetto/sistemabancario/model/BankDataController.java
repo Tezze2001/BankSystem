@@ -1,5 +1,10 @@
 package com.progetto.sistemabancario.model;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -7,18 +12,26 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Map.Entry;
 
-public class BankDataController {
+public class BankDataController implements Serializable {
     private Map<UUID, Account> accounts;
     private Map<UUID, Transaction> transactions;
 
     public BankDataController() {
-        accounts = new TreeMap<>();
-        transactions = new TreeMap<>();
+        BankDataController b = loadDataFromFile();
+        if (b == null) {
+            accounts = new TreeMap<>();
+            transactions = new TreeMap<>();
+        } else {
+            accounts = b.accounts;
+            transactions = b.transactions;
+            System.out.println("**Loaded data from file!!!**");
+        }
     }
 
     public UUID addAccounts(Account a) {
         UUID id = a.getUuid();
         accounts.put(id, a);
+        saveDataOnFile();
         return id;
     }
 
@@ -67,13 +80,16 @@ public class BankDataController {
     }
 
     public Account deleteAccount(UUID id) {
-        return accounts.remove(id);
+        Account rem = accounts.remove(id);
+        saveDataOnFile();
+        return rem;
     }
 
     public void setNameAndSurname(UUID id, String name, String surname) throws NotAccountFoundException{
         Account found = getAccount(id);
         found.setName(name);
         found.setSurname(surname);
+        saveDataOnFile();
     }
 
     public void setNameOrSurname(UUID id, String name, String surname) throws NotAccountFoundException{
@@ -83,6 +99,7 @@ public class BankDataController {
         } else {
             found.setName(name);
         }
+        saveDataOnFile();
     }
 
     public Transaction withdraw(UUID id, double amount) 
@@ -95,6 +112,7 @@ public class BankDataController {
             return null;
         }
         transactions.put(t.getUuid(), t);
+        saveDataOnFile();
         return t;
     }
     
@@ -105,6 +123,7 @@ public class BankDataController {
         Account a = getAccount(id);
         Transaction t = Transaction.depositTransaction(a, amount);
         transactions.put(t.getUuid(), t);
+        saveDataOnFile();
         return t;
     }
 
@@ -116,6 +135,7 @@ public class BankDataController {
         Account receiver = getAccount(idReceiver);
         Transaction t = Transaction.transaction(sender, receiver, amount);
         transactions.put(t.getUuid(), t);
+        saveDataOnFile();
         return t;
     }
 
@@ -125,7 +145,33 @@ public class BankDataController {
                                     InvalidParameterTransactionException {
         Transaction t = transactions.get(idTransaction).divert();
         transactions.put(t.getUuid(), t);
+        saveDataOnFile();
         return t;
+    }
+
+    private boolean saveDataOnFile() {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream("./src/main/resources/DB.data");
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(this);
+            objectOutputStream.flush();
+            objectOutputStream.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private BankDataController loadDataFromFile() {
+        try {
+            FileInputStream fileInputStream = new FileInputStream("./src/main/resources/DB.data");
+            ObjectInputStream objectOutputStream = new ObjectInputStream(fileInputStream);
+            BankDataController b = (BankDataController) objectOutputStream.readObject();
+            objectOutputStream.close();
+            return b;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

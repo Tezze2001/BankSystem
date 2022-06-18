@@ -1,9 +1,10 @@
 package com.progetto.sistemabancario.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Transaction implements Comparable<Transaction>{
+public class Transaction implements Comparable<Transaction>, Serializable {
     private final UUID uuid = UUID.randomUUID();
     private LocalDateTime time;
     private Account sender;

@@ -8,6 +8,12 @@ const checkAmount = (amount) => {
     return regex.test(amount)
 }
 
+const checkNameSurname = (str) => {
+    let regex = new RegExp('^([a-zA-Z])+$')
+    return regex.test(str)
+}
+
+
 const errorDispalyMsg = (msg, idHtmlElement) => {
     const error = document.getElementById(idHtmlElement)
     error.innerHTML = msg
