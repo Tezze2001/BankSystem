@@ -10,6 +10,6 @@ Per compilare ed eseguire il progetto da VS Code:
 - Creare richieste http con Postman o con la UI digitando sul browser [link](http://localhost:8080/)
 
 ## Architettura PC
-L'architettura su cui è stato sviluppato e testato il progetto è:
+L'architettura su cui il progetto è stato sviluppato e testato è:
 - Windows 10
-- architettura processore x86-64bit
+- architettura x86-64bit
