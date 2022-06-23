@@ -5,21 +5,29 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Transaction implements Comparable<Transaction>, Serializable {
+    public static enum Type {
+        TRANSACTION,
+        DEPOSIT,
+        WITHDRAW
+    }
+
     private final UUID uuid = UUID.randomUUID();
     private LocalDateTime time;
     private Account sender;
     private Account receiver;
     private double amount;
+    private Type type;
 
-    private Transaction(Account sender, Account receiver, double amount)
+    private Transaction(Account sender, Account receiver, double amount, Type type)
                                 throws InvalidParameterTransactionException {
         time = LocalDateTime.now();
-        if (sender == null || receiver == null || amount <= 0) {
+        if (sender == null || receiver == null || amount < 0) {
             throw new InvalidParameterTransactionException();
         }
         this.sender = sender;
         this.receiver = receiver;
         this.amount = amount;
+        this.type = type;
     }
     
     public static Transaction transaction(Account sender, Account receiver, double amount) 
@@ -30,7 +38,7 @@ public class Transaction implements Comparable<Transaction>, Serializable {
         }
         sender.withdraw(amount);
         receiver.deposit(amount);
-        return new Transaction(sender, receiver, amount);
+        return new Transaction(sender, receiver, amount, Transaction.Type.TRANSACTION);
     }
 
     public static Transaction depositTransaction( Account account, double amount) 
@@ -40,7 +48,7 @@ public class Transaction implements Comparable<Transaction>, Serializable {
             throw new InvalidParameterTransactionException();
         }
         account.deposit(amount);
-        return new Transaction(account, account, amount);
+        return new Transaction(account, account, amount, Transaction.Type.DEPOSIT);
     }
 
     public static Transaction withdrawTransaction(Account account, double amount) 
@@ -50,7 +58,7 @@ public class Transaction implements Comparable<Transaction>, Serializable {
             throw new InvalidParameterTransactionException();
         }
         account.withdraw(amount);
-        return new Transaction(account, account, amount);
+        return new Transaction(account, account, amount, Transaction.Type.WITHDRAW);
     }
 
     public Account getSender() {
@@ -72,11 +80,15 @@ public class Transaction implements Comparable<Transaction>, Serializable {
     public double getAmount() {
         return amount;
     }
+
+    public Type getType() {
+        return type;
+    }
     
     public Transaction divert() throws InvalidParameterTransactionException, 
                                             NotEnoughtBalanceException,
                                             UnableOperationException {
-        if (!sender.equals(receiver)) {
+        if (sender.equals(receiver) || receiver.isDeleted() || sender.isDeleted()) {
             throw new UnableOperationException();
         }
         return Transaction.transaction(receiver, sender, amount);

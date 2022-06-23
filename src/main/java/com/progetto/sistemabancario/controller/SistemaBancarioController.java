@@ -31,8 +31,7 @@ public class SistemaBancarioController {
         if (data == null || 
             data.get("from") == null ||
             data.get("to") == null ||
-            data.get("amount") == null ||
-            data.get("from").equals(data.get("to"))) {
+            data.get("amount") == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         try {
@@ -52,6 +51,7 @@ public class SistemaBancarioController {
         balanceReceiver.put("balance", String.valueOf(res.getReceiver().getBalance()));
         body.put("sender", balanceSender);
         body.put("receiver", balanceReceiver);
+        body.put("idTransaction", res.getUuid());
         return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
     

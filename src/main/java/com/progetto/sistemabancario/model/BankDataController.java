@@ -17,6 +17,7 @@ public class BankDataController implements Serializable {
     private Map<ExeID, Account> accounts;
     private Map<UUID, Transaction> transactions;
 
+    // create blank object or from a file
     public BankDataController() {
         BankDataController b = loadDataFromFile();
         if (b == null) {
@@ -38,6 +39,7 @@ public class BankDataController implements Serializable {
         return id;
     }
 
+    // get all info of account and its transactions
     public Set<Transaction> getAllTransactionFrom(ExeID id) {
         Set<Transaction> t = new TreeSet<>();
         Set<Entry<UUID, Transaction>> keySet = null;
@@ -45,24 +47,27 @@ public class BankDataController implements Serializable {
             keySet = transactions.entrySet();
         }
         for (Entry<UUID, Transaction> entry : keySet) {
-            if (entry.getValue().getSender().getId().equals(id)) {
+            if (entry.getValue().getSender().getId().equals(id) || 
+                entry.getValue().getReceiver().getId().equals(id)) {
                 t.add(entry.getValue());
             }
         }
         return t;
     }
 
+    // get account not deleted
     public Account getAccount(ExeID id) throws NotAccountFoundException{
         Account found = null;
         synchronized (accounts) {
             found = accounts.get(id);
         }
-        if (found == null) {
+        if (found == null || found.isDeleted()) {
             throw new NotAccountFoundException();
         }
         return found;
     }
-
+    
+    // get all info of account and its transactions
     public Map<String, Object> getAccountInfo(ExeID id) throws NotAccountFoundException {
         Map<String, Object> fields = new TreeMap<>();
         Account a = getAccount(id);
@@ -76,6 +81,7 @@ public class BankDataController implements Serializable {
         return fields;
     }
 
+    // get all accounts not deleted
     public Map<ExeID, Account> getAllAccounts(){
         Map<ExeID, Account> accounts = new TreeMap<>();
         Collection<Account> values = null;
@@ -90,6 +96,7 @@ public class BankDataController implements Serializable {
         return accounts;
     }
 
+    // set all field null
     public Account deleteAccount(ExeID id) {
         Account rem = null;
         synchronized (accounts) {
@@ -100,23 +107,24 @@ public class BankDataController implements Serializable {
         return rem;
     }
 
-
-
-    public void setNameAndSurname(ExeID id, String name, String surname) throws NotAccountFoundException{
-        Account found = getAccount(id);
-        found.setName(name);
-        found.setSurname(surname);
-        saveDataOnFile();
+    public void setNameAndSurname(ExeID id, String name, String surname) throws NotAccountFoundException,
+                                                                    IllegalArgumentException{
+        if (name != null && surname != null) {
+            setNameOrSurname(id, name, surname);
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
-    public void setNameOrSurname(ExeID id, String name, String surname) throws NotAccountFoundException{
+    public void setNameOrSurname(ExeID id, String name, String surname) throws NotAccountFoundException,
+                                                                IllegalArgumentException {
         synchronized (accounts) {
             Account found = getAccount(id);
-            if (name == null) {
-                found.setSurname(surname);
-            } else {
-                found.setName(name);
+            if (name == null && surname == null) {
+                throw new IllegalArgumentException();
             }
+            found.setName(name);
+            found.setSurname(surname);
         }
         saveDataOnFile();
     }

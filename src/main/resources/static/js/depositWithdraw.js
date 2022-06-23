@@ -47,7 +47,6 @@ window.onload = () => {
             return response.json()
         })
         .then(data => {
-            console.log("id of deposit or withdraw: ")
             console.log(data) 
             out('Transaction id: ' + data.idTransaction + '<br>account balance: ' + data.balance)
         })

@@ -51,12 +51,19 @@ window.onload = () => {
             document.getElementById('Account-surname').innerText = data.surname
             document.getElementById('Account-balance').innerText = data.balance + '€'
             data.transactions.forEach(element => {
-            let a =  'none'
-            if (id.value != element.receiver.uuid) {
-                a = element.receiver.uuid
-            }
-            document.querySelector('tbody#table-body').innerHTML 
-                    += '<tr><td>' + element.uuid + '</td><td>' + a + '</td><td>' + element.amount +'€</td><td>' + element.time +'</td></tr>'
+                let receiver =  'none'
+                let amount = element.amount
+                if (element.type === "TRANSACTION") {
+                    receiver = element.receiver.id.id
+                    if (receiver !== id.value) {
+                        amount *= -1
+                    }
+                }
+                if (element.type === "WITHDRAW") {
+                    amount *= -1
+                }
+                document.querySelector('tbody#table-body').innerHTML 
+                        += '<tr><td>' + element.uuid + '</td><td>' + element.sender.id.id + '</td><td>' + receiver + '</td><td>' + amount +'€</td><td>' + element.time +'</td></tr>'
             });
             const first = document.querySelector('tbody#table-body>tr:first-child')
             if (first != undefined) {

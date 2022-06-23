@@ -1,5 +1,5 @@
 const init = () => {
-    document.getElementById('error').style.display = 'none'
+    document.getElementById('out').style.display = 'none'
 } 
 
 const validate = (idSender, idReceiver, amount) => {
@@ -8,8 +8,8 @@ const validate = (idSender, idReceiver, amount) => {
         checkAmount(amount)
 }
 
-const error = (msg) => {
-    errorDispalyMsg(msg, 'error')
+const out = (msg) => {
+    outDispalyMsg(msg, 'out')
 } 
 
 window.onload = () => {
@@ -22,7 +22,7 @@ window.onload = () => {
     submit.addEventListener('click', () => {    
         init()
         if (!validate(sender.value, receiver.value, amount.value)) {
-            error('error id not valid')
+            out('Input not valid')
             return;
         }
         
@@ -41,16 +41,17 @@ window.onload = () => {
         })
         .then((response) => {
             if (!response.ok) {
-                error('Error')
-                throw new Error();
+                throw new Error("Invalid ids or amount");
             }
             return response.json();
         })
         .then(data => {
             console.log(data)
+            out('Transaction id: ' + data.idTransaction + '<br>sender id: ' + data.sender.id + '<br>sender balance: ' + data.sender.balance + '<br>receiver id: ' + data.receiver.id + '<br>receiver balance: ' + data.receiver.balance)
         })
         .catch(function(error) {
             console.log(error);
+            out(error)
         });
     })
     

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -37,13 +36,19 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<Object> createAccount(@RequestBody Map<String, String> newResource) {
-        if (newResource.get("name") == null || newResource.get("surname") == null) {
+        if (newResource == null ||
+            newResource.get("name") == null || newResource.get("surname") == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Map<String, ExeID> couple = new HashMap<>();
-        couple.put("id", SistemabancarioApplication.data.addAccounts(
+        try {
+            couple.put("id", SistemabancarioApplication.data.addAccounts(
                 new Account(newResource.get("name"), 
                             newResource.get("surname"))));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        
         return new ResponseEntity<>(couple, HttpStatus.OK);
     }
     
@@ -154,6 +159,8 @@ public class AccountController {
                         nameAndSurname.get("surname"));
         } catch (NotAccountFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -164,16 +171,13 @@ public class AccountController {
                             @RequestBody Map<String, String> nameOrSurname
                             ) {
         if (nameOrSurname == null || 
-            (nameOrSurname.get("name") == null &&
-            nameOrSurname.get("surname") == null) ||
-            (nameOrSurname.get("name") != null &&
-            nameOrSurname.get("surname") != null)) {
+            (nameOrSurname.get("name") == null && nameOrSurname.get("surname") == null)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         ExeID idAccount = null;
         try {
             idAccount = ExeID.fromString(id);  
-        } catch (InvalidParameterException e) {
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         
@@ -183,6 +187,8 @@ public class AccountController {
                         nameOrSurname.get("surname"));
         } catch (NotAccountFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
