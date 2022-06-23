@@ -1,13 +1,13 @@
 const init = () => {
-    document.getElementById('error').style.display = 'none'
+    document.getElementById('out').style.display = 'none'
 } 
 
 const validate = (id) => {
     return checkId(id)
 }
 
-const error = (msg) => {
-    errorDispalyMsg(msg, 'error')
+const out = (msg) => {
+    outDispalyMsg(msg, 'out')
 } 
 
 window.onload = () => {
@@ -18,33 +18,34 @@ window.onload = () => {
     submit.addEventListener('click', () => {    
         init()
         if (!validate(id.value)) {
-            error('error id not valid')
+            out('id not valid')
             return;
         }
         
-        fetch('/api/account', {
+        fetch('/api/account?id=' + id.value, {
             method : "DELETE",
             mode: 'cors',
             headers: {
                 'Accept': 'application/json',
                 "Content-Type" : "application/json"
-            },
-            body: JSON.stringify({
-                "id": id.value
-            })
+            }
         })
         .then((response) => {
+            if (response.status === 400) {
+                throw new Error('Id not valid');
+            }
             if (!response.ok) {
-                error('Error id not found')
                 throw new Error();
             }
             return response;
         })
         .then(data => {
-            console.log("Id deleted")
+            console.log('deleted')
+            out('deleted')
         })
         .catch(function(error) {
             console.log(error);
+            out(error)
         });
     })
     

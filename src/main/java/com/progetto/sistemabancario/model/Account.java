@@ -1,10 +1,9 @@
 package com.progetto.sistemabancario.model;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 public class Account implements Comparable<Account>, Serializable {
-    private final UUID uuid = UUID.randomUUID();
+    private final ExeID id = new ExeID();
     private String name;
     private String surname;
     private double balance;
@@ -50,17 +49,17 @@ public class Account implements Comparable<Account>, Serializable {
         this.balance = balance;
     }
 
-    public UUID getUuid() {
-        return uuid;
+    public ExeID getId() {
+        return id;
     }
 
     public boolean disponibility(double amount){
         return getBalance() - amount >= 0;
     }
 
-    public void withdraw(double amount) throws NotEnoughtBalance {
+    public void withdraw(double amount) throws NotEnoughtBalanceException {
         if (!disponibility(amount)) {
-            throw new NotEnoughtBalance();
+            throw new NotEnoughtBalanceException();
         }
         setBalance(getBalance() - amount);
     }
@@ -69,11 +68,23 @@ public class Account implements Comparable<Account>, Serializable {
         setBalance(getBalance() + amount);
     }
 
+    public void delete() {
+        this.name = null;
+        this.surname = null;
+        this.balance = 0;
+    }
+
+    public boolean isDeleted() {
+        return this.name == null &&
+            this.surname == null &&
+            this.balance == 0;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
         return result;
     }
 
@@ -86,16 +97,17 @@ public class Account implements Comparable<Account>, Serializable {
         if (getClass() != obj.getClass())
             return false;
         Account other = (Account) obj;
-        if (uuid == null) {
-            if (other.uuid != null)
+        if (id == null) {
+            if (other.id != null)
                 return false;
-        } else if (!uuid.equals(other.uuid))
+        } else if (!id.equals(other.id))
             return false;
         return true;
     }
     
     @Override
     public int compareTo(Account a) {
-        return uuid.compareTo(a.getUuid());
+        return id.compareTo(a.getId());
     }
+
 }

@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -13,7 +14,7 @@ import java.util.UUID;
 import java.util.Map.Entry;
 
 public class BankDataController implements Serializable {
-    private Map<UUID, Account> accounts;
+    private Map<ExeID, Account> accounts;
     private Map<UUID, Transaction> transactions;
 
     public BankDataController() {
@@ -28,128 +29,153 @@ public class BankDataController implements Serializable {
         }
     }
 
-    public UUID addAccounts(Account a) {
-        UUID id = a.getUuid();
-        accounts.put(id, a);
+    public ExeID addAccounts(Account a) {
+        ExeID id = a.getId();
+        synchronized (accounts) {
+            accounts.put(id, a);
+        }   
         saveDataOnFile();
         return id;
     }
 
-    public Set<UUID> getAllTransactionFrom(UUID id) {
-        Set<UUID> t = new TreeSet<>();
-        for (Entry<UUID, Transaction> entry : transactions.entrySet()) {
-            if (entry.getValue().getSender().getUuid().equals(id)) {
-                t.add(entry.getKey());
+    public Set<Transaction> getAllTransactionFrom(ExeID id) {
+        Set<Transaction> t = new TreeSet<>();
+        Set<Entry<UUID, Transaction>> keySet = null;
+        synchronized (transactions) {
+            keySet = transactions.entrySet();
+        }
+        for (Entry<UUID, Transaction> entry : keySet) {
+            if (entry.getValue().getSender().getId().equals(id)) {
+                t.add(entry.getValue());
             }
         }
         return t;
     }
 
-    public Set<Transaction> getAllTransactionFromInfo(UUID id) {
-        Set<UUID> idTransactions = getAllTransactionFrom(id);
-        Set<Transaction> t = new TreeSet<>();
-        for (UUID uuid : idTransactions) {
-            t.add(transactions.get(uuid));
+    public Account getAccount(ExeID id) throws NotAccountFoundException{
+        Account found = null;
+        synchronized (accounts) {
+            found = accounts.get(id);
         }
-        return t;
-    }
-
-    public Account getAccount(UUID id) throws NotAccountFoundException{
-        Account found = accounts.get(id);
         if (found == null) {
             throw new NotAccountFoundException();
         }
         return found;
     }
 
-    public Map<String, Object> getAccountInfo(UUID id) throws NotAccountFoundException {
+    public Map<String, Object> getAccountInfo(ExeID id) throws NotAccountFoundException {
         Map<String, Object> fields = new TreeMap<>();
-        Account a = accounts.get(id);
-        if (a == null) {
+        Account a = getAccount(id);
+        if (a.isDeleted()) {
             throw new NotAccountFoundException();
         }
-        fields.put("name", accounts.get(id).getName());
-        fields.put("surname", accounts.get(id).getSurname());
-        fields.put("balance", accounts.get(id).getBalance());
+        fields.put("name", a.getName());
+        fields.put("surname", a.getSurname());
+        fields.put("balance", a.getBalance());
         fields.put("transactions", getAllTransactionFrom(id));
         return fields;
     }
 
-    public Map<UUID, Account> getAllAccounts(){
+    public Map<ExeID, Account> getAllAccounts(){
+        Map<ExeID, Account> accounts = new TreeMap<>();
+        Collection<Account> values = null;
+        synchronized (accounts) {
+            values = this.accounts.values();
+        }
+        for (Account a : values) {
+            if (!a.isDeleted()) {
+                accounts.put(a.getId(), a);
+            }
+        }
         return accounts;
     }
 
-    public Account deleteAccount(UUID id) {
-        Account rem = accounts.remove(id);
+    public Account deleteAccount(ExeID id) {
+        Account rem = null;
+        synchronized (accounts) {
+            rem = accounts.get(id);
+        }
+        rem.delete();
         saveDataOnFile();
         return rem;
     }
 
-    public void setNameAndSurname(UUID id, String name, String surname) throws NotAccountFoundException{
+
+
+    public void setNameAndSurname(ExeID id, String name, String surname) throws NotAccountFoundException{
         Account found = getAccount(id);
         found.setName(name);
         found.setSurname(surname);
         saveDataOnFile();
     }
 
-    public void setNameOrSurname(UUID id, String name, String surname) throws NotAccountFoundException{
-        Account found = getAccount(id);
-        if (name == null) {
-            found.setSurname(surname);
-        } else {
-            found.setName(name);
+    public void setNameOrSurname(ExeID id, String name, String surname) throws NotAccountFoundException{
+        synchronized (accounts) {
+            Account found = getAccount(id);
+            if (name == null) {
+                found.setSurname(surname);
+            } else {
+                found.setName(name);
+            }
         }
         saveDataOnFile();
     }
 
-    public Transaction withdraw(UUID id, double amount) 
+    public Transaction withdraw(ExeID id, double amount) 
                                 throws NotAccountFoundException, 
                                     InvalidParameterTransactionException,
-                                    NotEnoughtBalance{
+                                    NotEnoughtBalanceException{
         Account a = getAccount(id);
         Transaction t = Transaction.withdrawTransaction(a, Math.abs(amount));
-        if (t == null) {
-            return null;
+        synchronized (transactions) {
+            transactions.put(t.getUuid(), t);
         }
-        transactions.put(t.getUuid(), t);
         saveDataOnFile();
         return t;
     }
     
-    public Transaction deposit(UUID id, double amount) 
+    public Transaction deposit(ExeID id, double amount) 
                                 throws NotAccountFoundException,
                                 InvalidParameterTransactionException,
-                                NotEnoughtBalance{
+                                NotEnoughtBalanceException{
         Account a = getAccount(id);
         Transaction t = Transaction.depositTransaction(a, amount);
-        transactions.put(t.getUuid(), t);
+        synchronized (transactions) {
+            transactions.put(t.getUuid(), t);
+        }
         saveDataOnFile();
         return t;
     }
 
-    public Transaction transfer(UUID idSender, UUID idReceiver, double amount) 
+    public Transaction transfer(ExeID idSender, ExeID idReceiver, double amount) 
                                             throws NotAccountFoundException,
-                                                NotEnoughtBalance,
+                                                NotEnoughtBalanceException,
                                                 InvalidParameterTransactionException {
         Account sender = getAccount(idSender);
         Account receiver = getAccount(idReceiver);
         Transaction t = Transaction.transaction(sender, receiver, amount);
-        transactions.put(t.getUuid(), t);
+        synchronized (transactions) {
+            transactions.put(t.getUuid(), t);
+        }
         saveDataOnFile();
         return t;
     }
 
     public Transaction divert(UUID idTransaction) 
                                 throws NotAccountFoundException,
-                                    NotEnoughtBalance,
-                                    InvalidParameterTransactionException {
-        Transaction t = transactions.get(idTransaction).divert();
-        transactions.put(t.getUuid(), t);
+                                    NotEnoughtBalanceException,
+                                    InvalidParameterTransactionException,
+                                    UnableOperationException {
+        Transaction t = null;
+        synchronized (transactions) {
+            t = transactions.get(idTransaction).divert();
+            transactions.put(t.getUuid(), t);
+        }
         saveDataOnFile();
         return t;
     }
 
-    private boolean saveDataOnFile() {
+    private synchronized boolean saveDataOnFile() {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream("./src/main/resources/DB.data");
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
@@ -170,6 +196,7 @@ public class BankDataController implements Serializable {
             objectOutputStream.close();
             return b;
         } catch (Exception e) {
+            System.out.print(e.getMessage());
             return null;
         }
     }

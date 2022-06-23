@@ -1,5 +1,5 @@
 const checkId = (id) => {
-    let regex = new RegExp('^([0-9a-f]){8}(-([0-9a-f]){4}){3}-([0-9a-f]){12}$')
+    let regex = new RegExp('^[0-9a-f]{20}$')
     return regex.test(id)
 }
 
@@ -14,8 +14,8 @@ const checkNameSurname = (str) => {
 }
 
 
-const errorDispalyMsg = (msg, idHtmlElement) => {
-    const error = document.getElementById(idHtmlElement)
-    error.innerHTML = msg
-    error.style.display = 'block'
+const outDispalyMsg = (msg, idHtmlElement) => {
+    const out = document.getElementById(idHtmlElement)
+    out.innerHTML = msg
+    out.style.display = 'block'
 } 

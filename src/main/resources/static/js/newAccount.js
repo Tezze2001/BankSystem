@@ -1,5 +1,5 @@
 const init = () => {
-    document.getElementById('error').style.display = 'none'
+    document.getElementById('out').style.display = 'none'
 } 
 
 const validate = (name, surname) => {
@@ -7,8 +7,8 @@ const validate = (name, surname) => {
         checkNameSurname(surname)
 }
 
-const error = (msg) => {
-    errorDispalyMsg(msg, 'error')
+const out = (msg) => {
+    outDispalyMsg(msg, 'out')
 } 
 
 window.onload = () => {
@@ -20,7 +20,7 @@ window.onload = () => {
     submit.addEventListener('click', () => {    
         init()
         if (!validate(name.value, surname.value)) {
-            error('error input not valid')
+            out('Name or surname not valid')
             return;
         }
         
@@ -37,17 +37,20 @@ window.onload = () => {
             })
         })
         .then((response) => {
+            if (response.status === 400) {
+                throw new Error('Name or surname not setted');
+            }
             if (!response.ok) {
-                error('Error')
                 throw new Error();
             }
             return response.json();
         })
         .then(data => {
             console.log(data)
+            out("id: " + data.id.id)
         })
         .catch(function(error) {
-            console.log(error);
+            out(error)
         });
     })
     

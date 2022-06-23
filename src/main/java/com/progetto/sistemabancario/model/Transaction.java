@@ -24,8 +24,8 @@ public class Transaction implements Comparable<Transaction>, Serializable {
     
     public static Transaction transaction(Account sender, Account receiver, double amount) 
                                 throws InvalidParameterTransactionException,
-                                        NotEnoughtBalance {
-        if (sender == null || receiver == null || amount <= 0) {
+                                        NotEnoughtBalanceException {
+        if (sender == null || receiver == null || amount < 0) {
             throw new InvalidParameterTransactionException();
         }
         sender.withdraw(amount);
@@ -35,8 +35,8 @@ public class Transaction implements Comparable<Transaction>, Serializable {
 
     public static Transaction depositTransaction( Account account, double amount) 
                                         throws InvalidParameterTransactionException,
-                                                NotEnoughtBalance {
-        if (account == null || amount <= 0) {
+                                                NotEnoughtBalanceException {
+        if (account == null || amount < 0) {
             throw new InvalidParameterTransactionException();
         }
         account.deposit(amount);
@@ -45,8 +45,8 @@ public class Transaction implements Comparable<Transaction>, Serializable {
 
     public static Transaction withdrawTransaction(Account account, double amount) 
                                         throws InvalidParameterTransactionException ,
-                                                NotEnoughtBalance {
-        if (account == null || amount <= 0) {
+                                                NotEnoughtBalanceException {
+        if (account == null || amount < 0) {
             throw new InvalidParameterTransactionException();
         }
         account.withdraw(amount);
@@ -74,7 +74,11 @@ public class Transaction implements Comparable<Transaction>, Serializable {
     }
     
     public Transaction divert() throws InvalidParameterTransactionException, 
-                                            NotEnoughtBalance {
+                                            NotEnoughtBalanceException,
+                                            UnableOperationException {
+        if (!sender.equals(receiver)) {
+            throw new UnableOperationException();
+        }
         return Transaction.transaction(receiver, sender, amount);
     }
 

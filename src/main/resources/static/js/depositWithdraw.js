@@ -1,13 +1,13 @@
 const init = () => {
-    document.getElementById('error').style.display = 'none'
+    document.getElementById('out').style.display = 'none'
 } 
 
 const validate = (id, amount) => {
     return checkId(id) && checkAmount(amount)
 }
 
-const error = (msg) => {
-    errorDispalyMsg(msg, 'error')
+const out = (msg) => {
+    outDispalyMsg(msg, 'out')
 } 
 
 window.onload = () => {
@@ -19,7 +19,7 @@ window.onload = () => {
     submit.addEventListener('click', () => {    
         init()
         if (!validate(id.value, amount.value)) {
-            error('error input not valid')
+            out('error input not valid')
             return;
         }
         
@@ -35,17 +35,25 @@ window.onload = () => {
             })
         })
         .then((response) => {
-            if (!response.ok) {
-                error('Error id not found')
-                throw new Error();
+            if (response.status === 404) {
+                new Error('Account not found')
+            } 
+            if (response.status === 400) {
+                new Error('Inputs not valid')
             }
-            return response.json();
+            if (!response.ok) {
+                throw new Error()
+            }
+            return response.json()
         })
         .then(data => {
-            console.log("id of deposit or withdraw: " + data) 
+            console.log("id of deposit or withdraw: ")
+            console.log(data) 
+            out('Transaction id: ' + data.idTransaction + '<br>account balance: ' + data.balance)
         })
         .catch(function(error) {
-            console.log(error);
+            console.log(error)
+            out(error)
         });
     })
     
